@@ -1,7 +1,7 @@
 
 set -e
 if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null ; then
-$VERILATOR_ROOT/bin/verilator \
+verilator \
 -cc \
 -exe \
 --public \

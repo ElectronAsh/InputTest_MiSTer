@@ -54,13 +54,13 @@ const int input_start = 11;
 #define VGA_WIDTH 320
 #define VGA_HEIGHT 240
 #define VGA_ROTATE 0  // 90 degrees anti-clockwise
-SimVideo video(VGA_WIDTH, VGA_HEIGHT, VGA_ROTATE);
+SimVideo video(VGA_WIDTH+40, VGA_HEIGHT+20, VGA_ROTATE);
 
 // Simulation control
 // ------------------
 int initialReset = 48;
 bool run_enable = 1;
-int batchSize = 150000;
+int batchSize = 100000;
 bool single_step = 0;
 bool multi_step = 0;
 int multi_step_amount = 1024;

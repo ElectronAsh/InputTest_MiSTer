@@ -58,7 +58,7 @@ module system (
 	output			VGA_VB
 );
 
-localparam [8:0] VGA_WIDTH = 9'd320;
+localparam [8:0] VGA_WIDTH = 9'd640;
 localparam [8:0] VGA_HEIGHT = 9'd240;
 
 wire _hb;

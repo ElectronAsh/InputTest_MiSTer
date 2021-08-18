@@ -143,6 +143,8 @@ char analog_ratio = 256 / 17;
 // Draw static elements for digital input test page
 void page_inputtester_digital()
 {
+	char j;
+	
 	clear_chars(0);
 	page_border(0b00000111);
 
@@ -150,7 +152,7 @@ void page_inputtester_digital()
 	write_string("Hold: Select=analog Start=advanced", 0b11100011, 3, 29);
 
 	// Draw pads
-	for (char j = 0; j < PAD_COUNT; j++)
+	for (j = 0; j < PAD_COUNT; j++)
 	{
 		write_stringf("JOY %d", 0xFF, pad_offset_x[j] - 5, pad_offset_y[j] + 3, j + 1);
 		draw_pad(pad_offset_x[j], pad_offset_y[j]);
@@ -160,13 +162,15 @@ void page_inputtester_digital()
 // Draw static elements for analog input test page
 void page_inputtester_analog()
 {
+	char j;
+	
 	clear_chars(0);
 	page_border(0b00000111);
 
 	write_string("- MiSTer Input Tester -", 0b11100011, 8, 1);
 	write_string("Hold: Select=digital Start=advanced", 0b11100011, 3, 29);
 
-	for (char j = 0; j < PAD_COUNT; j++)
+	for (j = 0; j < PAD_COUNT; j++)
 	{
 		write_stringf("ANALOG %d", 0xFF, analog_offset_x[j] + 5, analog_offset_y[j] - 1, j + 1);
 		draw_analog(analog_offset_x[j], analog_offset_y[j], analog_size, analog_size);
@@ -176,6 +180,9 @@ void page_inputtester_analog()
 // Draw static elements for advanced input test page
 void page_inputtester_advanced()
 {
+	unsigned char j;
+	char label[5];
+	
 	clear_chars(0);
 	page_border(0b00000111);
 
@@ -188,9 +195,8 @@ void page_inputtester_advanced()
 
 	write_string("POS", 0xFF, 7, 11);
 	write_string("SPD  POS", 0xFF, 18, 11);
-
-	char label[5];
-	for (unsigned char j = 0; j < 6; j++)
+	
+	for (j = 0; j < 6; j++)
 	{
 		sprintf(label, "JOY%d", j + 1);
 		write_string(label, 0xFF - (j * 2), 2, 4 + j);
@@ -206,13 +212,15 @@ void page_inputtester_advanced()
 
 void reset_inputstates()
 {
+	char i;
+	
 	modeswitchtimer_select = 0;
 	modeswitchtimer_start = 0;
-	for (char i = 0; i < 12; i++)
+	for (i = 0; i < 12; i++)
 	{
 		joystick_last[i] = 1;
 	}
-	for (char i = 0; i < 6; i++)
+	for (i = 0; i < 6; i++)
 	{
 		ax_last[i] = 1;
 		ay_last[i] = 1;
@@ -353,7 +361,9 @@ void fadein()
 // Rotate DPAD direction history and push new entry
 void pushhistory(char new)
 {
-	for (char h = 1; h < HISTORY_LENGTH; h++)
+	char h;
+	
+	for (h = 1; h < HISTORY_LENGTH; h++)
 	{
 		history[h - 1] = history[h];
 	}
@@ -447,6 +457,7 @@ bool modeswitcher()
 // Digital input tester state
 void inputtester_digital()
 {
+	char joy, index, button, color;
 
 	// Handle PS/2 inputs whenever possible to improve latency
 	handle_ps2();
@@ -468,12 +479,12 @@ void inputtester_digital()
 		}
 
 		// Draw control pad buttons
-		for (char joy = 0; joy < PAD_COUNT; joy++)
+		for (joy = 0; joy < PAD_COUNT; joy++)
 		{
-			char index = joy * 32;
-			for (char button = 0; button < BUTTON_COUNT; button++)
+			index = joy * 32;
+			for (button = 0; button < BUTTON_COUNT; button++)
 			{
-				char color = (button < 8 ? CHECK_BIT(joystick[index], button) : CHECK_BIT(joystick[index + 8], button - 8)) ? 0xFF : 0b10010010;
+				color = (button < 8 ? CHECK_BIT(joystick[index], button) : CHECK_BIT(joystick[index + 8], button - 8)) ? 0xFF : 0b10010010;
 				write_string(button_name[button], color, pad_offset_x[joy] + button_x[button], pad_offset_y[joy] + button_y[button]);
 			}
 		}
@@ -483,6 +494,8 @@ void inputtester_digital()
 // Analog input tester state
 void inputtester_analog()
 {
+	char j, mx, my;
+	signed char ax, ay;
 
 	// Handle PS/2 inputs whenever possible to improve latency
 	handle_ps2();
@@ -504,17 +517,17 @@ void inputtester_analog()
 		}
 
 		// Draw analog point
-		for (char j = 0; j < PAD_COUNT; j++)
+		for (j = 0; j < PAD_COUNT; j++)
 		{
 
-			char mx = analog_offset_x[j] + (analog_size / 2);
-			char my = analog_offset_y[j] + (analog_size / 2);
+			mx = analog_offset_x[j] + (analog_size / 2);
+			my = analog_offset_y[j] + (analog_size / 2);
 
 			// Reset previous color
 			set_colour(color_analog_grid, analog_x[j] + mx, analog_y[j] + my);
 
-			signed char ax = analog[(j * 16)];
-			signed char ay = analog[(j * 16) + 8];
+			ax = analog[(j * 16)];
+			ay = analog[(j * 16) + 8];
 
 			analog_x[j] = ax / analog_ratio;
 			analog_y[j] = ay / analog_ratio;
@@ -531,6 +544,14 @@ void inputtester_analog()
 // Advanced input tester state
 void inputtester_advanced()
 {
+	char inputindex, m, x, y, inputoffset, lastoffset, b, index, lastindex, joy, bytes, i;
+	signed char ax, ay;
+	char stra[10];
+	unsigned char px;
+	char strp[5];
+	bool sx_toggle;
+	signed char sx;
+	char k;
 
 	// Handle PS/2 inputs whenever possible to improve latency
 	handle_ps2();
@@ -552,23 +573,23 @@ void inputtester_advanced()
 		}
 
 		// Draw joystick inputs (only update each byte if value has changed)
-		for (char inputindex = 0; inputindex < 6; inputindex++)
+		for (inputindex = 0; inputindex < 6; inputindex++)
 		{
-			char m = 0b00000001;
-			char x = 6;
-			char y = 4 + inputindex;
-			char inputoffset = (inputindex * 32);
-			char lastoffset = (inputindex * 2);
-			for (char b = 0; b < 2; b++)
+			m = 0b00000001;
+			x = 6;
+			y = 4 + inputindex;
+			inputoffset = (inputindex * 32);
+			lastoffset = (inputindex * 2);
+			for (b = 0; b < 2; b++)
 			{
-				char index = (b * 8) + inputoffset;
-				char lastindex = b + lastoffset;
-				char joy = joystick[index];
+				index = (b * 8) + inputoffset;
+				lastindex = b + lastoffset;
+				joy = joystick[index];
 				if (joy != joystick_last[lastindex])
 				{
 					m = 0b00000001;
-					char bytes = (b == 0 ? 8 : 4);
-					for (char i = 0; i < bytes; i++)
+					bytes = (b == 0 ? 8 : 4);
+					for (i = 0; i < bytes; i++)
 					{
 						x++;
 						write_char((joy & m) ? asc_1 : asc_0, 0xFF, x, y);
@@ -583,11 +604,11 @@ void inputtester_advanced()
 			}
 
 			// Draw analog inputs (only update if value has changed)
-			signed char ax = analog[(inputindex * 16)];
-			signed char ay = analog[(inputindex * 16) + 8];
+			ax = analog[(inputindex * 16)];
+			ay = analog[(inputindex * 16) + 8];
 			if (ax != ax_last[inputindex] || ay != ay_last[inputindex])
 			{
-				char stra[10];
+				stra[10];
 				sprintf(stra, "%4d %4d", ax, ay);
 				write_string(stra, 0xFF, 20, 4 + inputindex);
 			}
@@ -595,18 +616,18 @@ void inputtester_advanced()
 			ay_last[inputindex] = ay;
 
 			// Draw paddle inputs (only update if value has changed)
-			unsigned char px = paddle[(inputindex * 8)];
+			px = paddle[(inputindex * 8)];
 			if (px != px_last[inputindex])
 			{
-				char strp[5];
+				strp[5];
 				sprintf(strp, "%4d", px);
 				write_string(strp, 0xFF, 6, 12 + inputindex);
 			}
 			px_last[inputindex] = px;
 
 			// Draw spinner inputs (only update when update clock changes)
-			bool sx_toggle = CHECK_BIT(spinner[(inputindex * 16) + 8], 0);
-			signed char sx = spinner[(inputindex * 16)];
+			sx_toggle = CHECK_BIT(spinner[(inputindex * 16) + 8], 0);
+			sx = spinner[(inputindex * 16)];
 			if (sx_toggle != sx_toggle_last[inputindex])
 			{
 				sx_pos[inputindex] += sx;
@@ -636,7 +657,7 @@ void inputtester_advanced()
 				write_char(' ', 0xFF, con_x, con_y);
 			}
 			// Write characters in buffer
-			for (char k = 0; k < kbd_buffer_len; k++)
+			for (k = 0; k < kbd_buffer_len; k++)
 			{
 				if (kbd_buffer[k] == '\n')
 				{
@@ -698,6 +719,9 @@ void inputtester_advanced()
 // SNEK - gameplay state
 void gameplay()
 {
+	unsigned int p;
+	char score[5];
+	char str_movefreq[3];
 
 	if (hsync && !hsync_last)
 	{
@@ -739,7 +763,7 @@ void gameplay()
 			yd = nyd;
 			x += xd;
 			y += yd;
-			unsigned int p = (y * chram_cols) + x;
+			p = (y * chram_cols) + x;
 			if (chram[p] > 0)
 			{
 				nextstate = STATE_START_ATTRACT;
@@ -749,7 +773,6 @@ void gameplay()
 			length++;
 			write_char(playerchar, 0xFF, x, y);
 			movetimer = movefreq;
-			char score[5];
 			sprintf(score, "%4d", length);
 			write_string(score, 0xFF, 35, 0);
 		}
@@ -762,7 +785,6 @@ void gameplay()
 			{
 				movefreq--;
 			}
-			char str_movefreq[3];
 			sprintf(str_movefreq, "%4d", movefreq);
 			write_string(str_movefreq, 0xFF, 35, 29);
 		}

@@ -205,8 +205,10 @@ char kbd_buffer_len = 0;
 
 void get_ascii(char scan)
 {
+	char p;
+	
 	kbd_lastscan = scan;
-	char p = (kbd_lastscan * 2);
+	p = (kbd_lastscan * 2);
 	if (!(kbd_shift_left || kbd_shift_right))
 	{
 		p++;
@@ -223,10 +225,12 @@ char kbd_clock_index = 10;
 
 void handle_ps2()
 {
+	char k;
+	
 	bool kbd_clock = CHECK_BIT(ps2_key[kbd_clock_index], 0);
 	if (kbd_clock != kbd_lastclock)
 	{
-		for (char k = 0; k < 2; k++)
+		for (k = 0; k < 2; k++)
 		{
 			kbd_in[k] = ps2_key[k * 8];
 		}

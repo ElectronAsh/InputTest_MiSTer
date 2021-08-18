@@ -28,7 +28,9 @@ char asc_1 = 49;
 // Set all character RAM to specified character
 void clear_chars(char c)
 {
-	for (unsigned int p = 0; p < chram_size; p++)
+	unsigned int p;
+	
+	for (p = 0; p < chram_size; p++)
 	{
 		chram[p] = c;
 	}
@@ -39,7 +41,9 @@ void write_string(const char *string, char color, unsigned int x, unsigned int y
 {
 	unsigned int p = (y * chram_cols) + x;
 	unsigned char l = strlen(string);
-	for (char c = 0; c < l; c++)
+	char c;
+	
+	for (c = 0; c < l; c++)
 	{
 		chram[p] = string[c];
 		colram[p] = color;
@@ -52,9 +56,13 @@ void write_stringfs(const char *format, char color, unsigned int x, unsigned int
 {
 	unsigned int p = (y * chram_cols) + x;
 	char temp[30];
+	unsigned char l;
+	char c;
+	
 	sprintf(temp, format, data);
-	unsigned char l = strlen(temp);
-	for (char c = 0; c < l; c++)
+	l = strlen(temp);
+		
+	for (c = 0; c < l; c++)
 	{
 		if (temp[c] == 0)
 		{
@@ -71,9 +79,13 @@ void write_stringf(const char *format, char color, unsigned int x, unsigned int 
 {
 	unsigned int p = (y * chram_cols) + x;
 	char temp[30];
+	unsigned char l;
+	char c;
+	
 	sprintf(temp, format, data);
-	unsigned char l = strlen(temp);
-	for (char c = 0; c < l; c++)
+	l = strlen(temp);
+	
+	for (c = 0; c < l; c++)
 	{
 		if (temp[c] == 0)
 		{
@@ -103,11 +115,13 @@ void set_colour(char color, unsigned int x, unsigned int y)
 // Write grouped bits to character RAM
 void write_bits(char bits[], char multi, unsigned char first, unsigned char length, char color, unsigned int x, unsigned int y)
 {
-	for (char b = first; b < first + length; b++)
+	char b, m, i;
+	
+	for (b = first; b < first + length; b++)
 	{
 		write_char((b) ? asc_1 : asc_0, color, x, y - 1);
-		char m = 0b00000001;
-		for (char i = 0; i < 8; i++)
+		m = 0b00000001;
+		for (i = 0; i < 8; i++)
 		{
 			write_char((bits[b * multi] & m) ? asc_1 : asc_0, color, x, y);
 			x++;
@@ -120,12 +134,14 @@ void write_bits(char bits[], char multi, unsigned char first, unsigned char leng
 // Draw box outline with specified character
 void box(unsigned int tx, unsigned int ty, unsigned int bx, unsigned int by, char c, char color)
 {
-	for (unsigned int x = tx; x <= bx; x++)
+	unsigned int x, y;
+	
+	for (x = tx; x <= bx; x++)
 	{
 		write_char(c, color, x, ty);
 		write_char(c, color, x, by);
 	}
-	for (unsigned int y = ty + 1; y < by; y++)
+	for (y = ty + 1; y < by; y++)
 	{
 		write_char(c, color, tx, y);
 		write_char(c, color, bx, y);
@@ -135,16 +151,18 @@ void box(unsigned int tx, unsigned int ty, unsigned int bx, unsigned int by, cha
 // Draw UI panel
 void panel(char tx, char ty, char bx, char by, char color)
 {
+	char x, y;
+	
 	write_char(128, color, tx, ty);
 	write_char(130, color, bx, ty);
 	write_char(133, color, tx, by);
 	write_char(132, color, bx, by);
-	for (char x = tx + 1; x < bx; x++)
+	for (x = tx + 1; x < bx; x++)
 	{
 		write_char(129, color, x, ty);
 		write_char(129, color, x, by);
 	}
-	for (char y = ty + 1; y < by; y++)
+	for (y = ty + 1; y < by; y++)
 	{
 		write_char(131, color, tx, y);
 		write_char(131, color, bx, y);
@@ -153,9 +171,11 @@ void panel(char tx, char ty, char bx, char by, char color)
 
 void fill(char tx, char ty, char bx, char by, char c, char color)
 {
-	for (char x = tx; x <= bx; x++)
+	char x, y;
+	
+	for (x = tx; x <= bx; x++)
 	{
-		for (char y = ty; y <= by; y++)
+		for (y = ty; y <= by; y++)
 		{
 			write_char(c, color, x, y);
 		}
@@ -173,14 +193,16 @@ char color_pad_outline = 0xFE;
 // Draw game pad outline
 void draw_pad(char xo, char yo)
 {
+	char x, y;
+	
 	// Outline
 	write_char(134, color_pad_outline, xo, yo + 1);
-	for (char x = 1; x < 26; x++)
+	for (x = 1; x < 26; x++)
 	{
 		write_char(135, color_pad_outline, xo + x, yo + 1);
 	}
 	write_char(136, color_pad_outline, xo + 26, yo + 1);
-	for (char y = 2; y < 5; y++)
+	for (y = 2; y < 5; y++)
 	{
 		write_char(137, color_pad_outline, xo, yo + y);
 		write_char(137, color_pad_outline, xo + 26, yo + y);
@@ -192,15 +214,15 @@ void draw_pad(char xo, char yo)
 	write_char(139, color_pad_outline, xo + 18, yo + 5);
 	write_char(134, color_pad_outline, xo + 8, yo + 4);
 	write_char(136, color_pad_outline, xo + 18, yo + 4);
-	for (char x = 1; x < 8; x++)
+	for (x = 1; x < 8; x++)
 	{
 		write_char(135, color_pad_outline, xo + x, yo + 5);
 	}
-	for (char x = 9; x < 18; x++)
+	for (x = 9; x < 18; x++)
 	{
 		write_char(135, color_pad_outline, xo + x, yo + 4);
 	}
-	for (char x = 19; x < 26; x++)
+	for (x = 19; x < 26; x++)
 	{
 		write_char(135, color_pad_outline, xo + x, yo + 5);
 	}
@@ -216,15 +238,17 @@ char color_analog_grid = 0x23;
 // Draw game pad outline
 void draw_analog(char xo, char yo, char xs, char ys)
 {
+	char mx, my, x, y;
+	
 	panel(xo, yo, xo + xs, yo + ys, 0xFF);
 	fill(xo + 1, yo + 1, xo + xs - 1, yo + ys - 1, 27, color_analog_grid);
-	char mx = xo + (xs / 2);
-	char my = yo + (ys / 2);
-	for (char x = xo + 1; x < xo + xs; x++)
+	mx = xo + (xs / 2);
+	my = yo + (ys / 2);
+	for (x = xo + 1; x < xo + xs; x++)
 	{
 		write_char(129, color_analog_grid, x, my);
 	}
-	for (char y = yo + 1; y < yo + ys; y++)
+	for (y = yo + 1; y < yo + ys; y++)
 	{
 		write_char(131, color_analog_grid, mx, y);
 	}
